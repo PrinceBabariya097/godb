@@ -3,7 +3,7 @@
 //   sqlc v1.29.0
 // source: todos.sql
 
-package database
+package db
 
 import (
 	"context"
@@ -18,9 +18,9 @@ RETURNING id, name, created_at, updated_at, valid_till, completed, completed_at
 `
 
 type CreateTodoParams struct {
-	Name        sql.NullString
-	ValidTill   sql.NullTime
-	Completed   sql.NullBool
+	Name        string
+	ValidTill   time.Time
+	Completed   bool
 	CompletedAt sql.NullTime
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
@@ -122,9 +122,9 @@ RETURNING id, name, created_at, updated_at, valid_till, completed, completed_at
 `
 
 type UpdateTodoParams struct {
-	Name        sql.NullString
-	ValidTill   sql.NullTime
-	Completed   sql.NullBool
+	Name        string
+	ValidTill   time.Time
+	Completed   bool
 	CompletedAt sql.NullTime
 	UpdatedAt   time.Time
 	ID          int64

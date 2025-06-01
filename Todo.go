@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"os"
@@ -8,12 +10,11 @@ import (
 	"strings"
 	"text/tabwriter"
 	"time"
+	db "tm/internal/database"
 )
 
 type Todo struct {
-	id           int
 	name         string
-	created_at   time.Time
 	updated_at   time.Time
 	valid_till   time.Time
 	completed    bool
@@ -30,18 +31,19 @@ func (t *Todos) ValidateIndex(index int) error {
 	return nil
 }
 
-func (t *Todos) AddTodo(name string, valid_till time.Time) {
-	newTodo := Todo{
-		id:           len(*t),
-		name:         name,
-		created_at:   time.Now(),
-		updated_at:   time.Now(),
-		valid_till:   valid_till,
-		completed:    false,
-		completed_at: nil,
+func (apiConfig *apiConfig) AddTodo(name string, valid_till time.Time) {
+	newTodo := db.CreateTodoParams{
+		Name:        name,
+		ValidTill:   valid_till,
+		Completed:   false,
+		CompletedAt: sql.NullTime{},
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
 	}
 
-	*t = append(*t, newTodo)
+	ctx := context.Background()
+
+	apiConfig.DB.CreateTodo(ctx, newTodo)
 }
 
 func (t *Todos) UpdateTodo(index int, name string, valid_till time.Time) error {
@@ -87,7 +89,7 @@ func (t *Todos) DeleteTodo(index int) error {
 	return nil
 }
 
-func (t *Todos) PrintTodos(todos *Todos) {
+func (apiConfig *apiConfig) PrintTodos() error {
 	w := tabwriter.NewWriter(os.Stdout, 1, 1, 1, ' ', tabwriter.Debug)
 
 	headers := []string{"ID", "Name", "Created At", "Updated At", "Valid Till", "Completed", "Completed At"}
@@ -96,17 +98,23 @@ func (t *Todos) PrintTodos(todos *Todos) {
 		return "| " + strings.Join(cells, " \t| ") + " \t|"
 	}
 
+	todos, err := apiConfig.DB.GetAllTodos(context.Background())
+
+	if err != nil {
+		return err
+	}
+
 	fmt.Fprintln(w, formatRow(headers))
 
-	for _, todo := range *todos {
+	for _, todo := range todos {
 		cells := []string{
-			fmt.Sprintf("%d", todo.id),
-			todo.name,
-			todo.created_at.Format("2006-01-02 15:04:05"),
-			todo.updated_at.Format("2006-01-02 15:04:05"),
-			todo.valid_till.Format("2006-01-02 15:04:05"),
-			fmt.Sprintf("%v", todo.completed),
-			fmt.Sprintf("%v", todo.completed_at),
+			fmt.Sprintf("%d", todo.ID),
+			todo.Name,
+			todo.CreatedAt.Format("2006-01-02 15:04:05"),
+			todo.UpdatedAt.Format("2006-01-02 15:04:05"),
+			todo.ValidTill.Format("2006-01-02 15:04:05"),
+			fmt.Sprintf("%v", todo.Completed),
+			fmt.Sprintf("%v", todo.CompletedAt),
 		}
 
 		fmt.Fprintln(w, formatRow(cells))
@@ -114,4 +122,5 @@ func (t *Todos) PrintTodos(todos *Todos) {
 
 	w.Flush()
 
+	return nil
 }

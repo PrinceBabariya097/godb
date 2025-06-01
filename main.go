@@ -3,10 +3,15 @@ package main
 import (
 	"database/sql"
 	"log"
-	"github.com/PrinceBabariya097/godb/internal/databse"
+
+	db "tm/internal/database"
 
 	_ "github.com/mattn/go-sqlite3"
 )
+
+type apiConfig struct {
+	DB *db.Queries
+}
 
 func main() {
 	connection, err := sql.Open("sqlite3", "todos.db")
@@ -16,5 +21,9 @@ func main() {
 	}
 	defer connection.Close()
 
-	queries := 
+	apiConfig := apiConfig{
+		DB: db.New(connection),
+	}
+
+	apiConfig.PrintTodos()
 }

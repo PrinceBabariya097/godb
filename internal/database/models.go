@@ -2,7 +2,7 @@
 // versions:
 //   sqlc v1.29.0
 
-package database
+package db
 
 import (
 	"database/sql"
@@ -11,10 +11,10 @@ import (
 
 type Todo struct {
 	ID          int64
-	Name        sql.NullString
+	Name        string
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
-	ValidTill   sql.NullTime
-	Completed   sql.NullBool
+	ValidTill   time.Time
+	Completed   bool
 	CompletedAt sql.NullTime
 }

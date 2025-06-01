@@ -2,11 +2,11 @@
 
 CREATE TABLE todos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
+    name TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    valid_till TIMESTAMP,
-    completed BOOLEAN,
+    valid_till TIMESTAMP NOT NULL,
+    completed BOOLEAN NOT NULL,
     completed_at TIMESTAMP
 );
 
